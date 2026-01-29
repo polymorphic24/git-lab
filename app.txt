@@ -1,8 +1,1 @@
-versi 1
-versi 2
-versi 3
-<<<<<<< HEAD
-versi 4 - branch feature-login
-=======
-versi 5 - login feature-login
->>>>>>> 088c939 (upgrade to v5 login branch)
+INI DARI FEATURE
