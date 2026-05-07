@@ -1,0 +1,17 @@
+<h2>Produk</h2>
+
+<form method="POST" action="/add_produk">
+    Kode: <input name="code"><br>
+    Nama: <input name="name"><br>
+    Harga: <input name="price"><br>
+    Stok: <input name="stock"><br>
+    <button type="submit">Tambah</button>
+</form>
+
+<hr>
+
+<ul>
+{% for p in products %}
+    <li>{{p.name}} - {{p.price}} (stok: {{p.stock}})</li>
+{% endfor %}
+</ul>

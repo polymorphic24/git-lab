@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card">
+<h2>Transaksi #{{transaksi.id}}</h2>
+
+<p><b>Total:</b> Rp {{transaksi.total}}</p>
+<p><b>Tanggal:</b> {{transaksi.created_at}}</p>
+
+<hr>
+
+<table>
+<tr>
+    <th>Produk</th>
+    <th>Qty</th>
+    <th>Harga</th>
+    <th>Subtotal</th>
+</tr>
+
+{% for item in items %}
+<tr>
+    <td>{{item.name}}</td>
+    <td>{{item.qty}}</td>
+    <td>{{item.price}}</td>
+    <td>{{item.qty * item.price}}</td>
+</tr>
+{% endfor %}
+</table>
+
+<br>
+<a href="/laporan">Kembali</a>
+
+</div>
+
+{% endblock %}

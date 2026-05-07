@@ -1,0 +1,4 @@
+<h1>POS Sederhana</h1>
+<a href="/produk">Kelola Produk</a><br>
+<a href="/kasir">Kasir</a>
+<a href="/logout">Logout</a>

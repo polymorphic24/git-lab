@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card">
+
+<h2>Kelola Produk</h2>
+
+<form method="POST" action="/add_produk">
+    <p>Kode Produk</p>
+    <input name="code" required>
+
+    <p>Nama Produk</p>
+    <input name="name" required>
+
+    <p>Harga</p>
+    <input name="price" type="number" required>
+
+    <p>Stok</p>
+    <input name="stock" type="number" required>
+
+    <br><br>
+    <button type="submit">Simpan Produk</button>
+</form>
+
+<hr>
+
+<table>
+<tr>
+    <th>Kode</th>
+    <th>Nama</th>
+    <th>Harga</th>
+    <th>Stok</th>
+</tr>
+
+{% for p in products %}
+<tr>
+    <td>{{p.code}}</td>
+    <td>{{p.name}}</td>
+    <td>Rp {{p.price}}</td>
+    <td>{{p.stock}}</td>
+</tr>
+{% endfor %}
+
+</table>
+
+</div>
+
+{% endblock %}

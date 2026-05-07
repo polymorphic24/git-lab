@@ -1,0 +1,60 @@
+<h2>Kasir</h2>
+
+<ul>
+{% for p in products %}
+<li>
+    {{p.name}} - {{p.price}}
+    <button onclick="addToCart({{p.id}}, '{{p.name}}', {{p.price}})">Tambah</button>
+</li>
+{% endfor %}
+</ul>
+
+<hr>
+
+<h3>Keranjang</h3>
+<ul id="cart"></ul>
+
+Total: <span id="total">0</span><br>
+<button onclick="checkout()">Bayar</button>
+
+<script>
+let cart = []
+
+function addToCart(id, name, price) {
+    let item = cart.find(i => i.id === id)
+    if(item){
+        item.qty++
+    } else {
+        cart.push({id, name, price, qty:1})
+    }
+    renderCart()
+}
+
+function renderCart(){
+    let el = document.getElementById("cart")
+    let total = 0
+    el.innerHTML = ""
+
+    cart.forEach(i => {
+        total += i.price * i.qty
+        el.innerHTML += `<li>${i.name} x ${i.qty}</li>`
+    })
+
+    document.getElementById("total").innerText = total
+}
+
+function checkout(){
+    fetch("/transaksi", {
+        method:"POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({
+            items: cart,
+            total: parseInt(document.getElementById("total").innerText)
+        })
+    }).then(r=>r.json()).then(d=>{
+        alert("Transaksi sukses")
+        cart = []
+        renderCart()
+    })
+}
+</script>

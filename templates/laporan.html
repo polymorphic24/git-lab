@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card">
+<h2>Laporan Transaksi</h2>
+
+<form method="GET">
+    Dari: <input type="date" name="start">
+    Sampai: <input type="date" name="end">
+    <button type="submit">Filter</button>
+</form>
+
+<br>
+
+<table>
+<tr>
+    <th>ID</th>
+    <th>Total</th>
+    <th>Tanggal</th>
+    <th>Aksi</th>
+</tr>
+
+{% for t in transactions %}
+<tr>
+    <td>{{t.id}}</td>
+    <td>Rp {{t.total}}</td>
+    <td>{{t.created_at}}</td>
+    <td><a href="/transaksi/{{t.id}}">Detail</a></td>
+</tr>
+{% endfor %}
+</table>
+
+</div>
+
+{% endblock %}
