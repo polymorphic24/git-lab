@@ -5,7 +5,20 @@
 
 <h2>Kasir</h2>
 
-<table>
+<!-- SEARCH -->
+<input
+    type="text"
+    id="search"
+    placeholder="Cari nama / scan barcode..."
+    onkeyup="searchProduk()"
+    style="width:100%; padding:10px;"
+>
+
+<br><br>
+
+<!-- TABLE PRODUK -->
+<table id="produkTable">
+
 <tr>
     <th>Produk</th>
     <th>Harga</th>
@@ -14,98 +27,319 @@
 </tr>
 
 {% for p in products %}
-<tr>
-    <td>{{p.name}}</td>
-    <td>Rp {{p.price}}</td>
-    <td>{{p.stock}}</td>
+<tr class="produk-row" data-code="{{p.code}}">
+
+    <td class="produk-name">
+        {{p.name}}
+    </td>
+
     <td>
-        <button onclick="addToCart({{p.id}}, '{{p.name}}', {{p.price}})">
+        Rp {{p.price}}
+    </td>
+
+    <td>
+        {{p.stock}}
+    </td>
+
+    <td>
+        <button
+            onclick="addToCart(
+                {{p.id}},
+                '{{p.name}}',
+                {{p.price}}
+            )"
+        >
             Tambah
         </button>
     </td>
+
 </tr>
 {% endfor %}
+
 </table>
 
 <hr>
 
+<!-- KERANJANG -->
 <h3>Keranjang</h3>
 
-<ul id="cart"></ul>
+<table>
 
-<h3>Total: Rp <span id="total">0</span></h3>
+<tr>
+    <th>Produk</th>
+    <th>Qty</th>
+    <th>Harga</th>
+    <th>Subtotal</th>
+    <th>Aksi</th>
+</tr>
 
-<button onclick="checkout()">Bayar</button>
+<tbody id="cart"></tbody>
+
+</table>
+
+<!-- TOTAL -->
+<h3>
+    Total: Rp <span id="total">0</span>
+</h3>
+
+<hr>
+
+<!-- PEMBAYARAN -->
+<h3>Pembayaran</h3>
+
+<input
+    type="number"
+    id="bayar"
+    placeholder="Masukkan uang bayar"
+    onkeyup="hitungKembalian()"
+    style="padding:10px;"
+>
+
+<h3>
+    Kembalian:
+    Rp <span id="kembalian">0</span>
+</h3>
+
+<br>
+
+<button onclick="checkout()">
+    Bayar
+</button>
 
 </div>
 
 <script>
+
 let cart = []
 
-function addToCart(id, name, price) {
+// ================= SEARCH =================
+function searchProduk(){
+
+    let input = document
+        .getElementById("search")
+        .value
+        .toLowerCase()
+
+    let rows = document.querySelectorAll(".produk-row")
+
+    rows.forEach(row => {
+
+        let name = row
+            .querySelector(".produk-name")
+            .innerText
+            .toLowerCase()
+
+        let code = row.dataset.code.toLowerCase()
+
+        if(
+            name.includes(input) ||
+            code.includes(input)
+        ){
+            row.style.display = ""
+        } else {
+            row.style.display = "none"
+        }
+
+    })
+}
+
+// ================= ADD CART =================
+function addToCart(id, name, price){
 
     let item = cart.find(i => i.id === id)
 
     if(item){
+
         item.qty++
+
     } else {
+
         cart.push({
             id,
             name,
             price,
             qty:1
         })
+
     }
 
     renderCart()
 }
 
+// ================= RENDER CART =================
 function renderCart(){
 
     let el = document.getElementById("cart")
+
     let total = 0
 
     el.innerHTML = ""
 
-    cart.forEach(i => {
+    cart.forEach((item, index) => {
 
-        total += i.price * i.qty
+        let subtotal = item.price * item.qty
+
+        total += subtotal
 
         el.innerHTML += `
-            <li>
-                ${i.name} 
-                x ${i.qty} 
-                = Rp ${i.price * i.qty}
-            </li>
+        <tr>
+
+            <td>
+                ${item.name}
+            </td>
+
+            <td>
+
+                <button onclick="kurangQty(${index})">
+                    -
+                </button>
+
+                ${item.qty}
+
+                <button onclick="tambahQty(${index})">
+                    +
+                </button>
+
+            </td>
+
+            <td>
+                Rp ${item.price}
+            </td>
+
+            <td>
+                Rp ${subtotal}
+            </td>
+
+            <td>
+
+                <button onclick="hapusItem(${index})">
+                    Hapus
+                </button>
+
+            </td>
+
+        </tr>
         `
     })
 
     document.getElementById("total").innerText = total
+
+    hitungKembalian()
 }
 
+// ================= HITUNG KEMBALIAN =================
+function hitungKembalian(){
+
+    let total = parseInt(
+        document.getElementById("total").innerText
+    )
+
+    let bayar = parseInt(
+        document.getElementById("bayar").value
+    ) || 0
+
+    let kembali = bayar - total
+
+    document.getElementById("kembalian")
+        .innerText = kembali
+}
+
+// ================= TAMBAH QTY =================
+function tambahQty(index){
+
+    cart[index].qty++
+
+    renderCart()
+}
+
+// ================= KURANG QTY =================
+function kurangQty(index){
+
+    if(cart[index].qty > 1){
+
+        cart[index].qty--
+
+    } else {
+
+        cart.splice(index, 1)
+
+    }
+
+    renderCart()
+}
+
+// ================= HAPUS ITEM =================
+function hapusItem(index){
+
+    cart.splice(index, 1)
+
+    renderCart()
+}
+
+// ================= CHECKOUT =================
 function checkout(){
 
+    let total = parseInt(
+        document.getElementById("total").innerText
+    )
+
+    let bayar = parseInt(
+        document.getElementById("bayar").value
+    ) || 0
+
+    // VALIDASI KERANJANG
+    if(cart.length == 0){
+
+        alert("Keranjang kosong")
+
+        return
+    }
+
+    // VALIDASI UANG
+    if(bayar < total){
+
+        alert("Uang kurang")
+
+        return
+    }
+
     fetch("/transaksi", {
+
         method:"POST",
+
         headers:{
             "Content-Type":"application/json"
         },
+
         body: JSON.stringify({
             items: cart
         })
+
     })
     .then(r => r.json())
     .then(d => {
 
         if(d.status == "success"){
+
+            // BUKA STRUK
+            window.open(
+                `/struk/${d.transaction_id}`,
+                "_blank"
+            )
+
             alert("Transaksi berhasil")
+
             location.reload()
+
         } else {
+
             alert(d.status)
+
         }
 
     })
 }
+
 </script>
 
 {% endblock %}

@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card">
+
+<h2>Kasir</h2>
+
+<table>
+<tr>
+    <th>Produk</th>
+    <th>Harga</th>
+    <th>Stok</th>
+    <th>Aksi</th>
+</tr>
+
+{% for p in products %}
+<tr>
+    <td>{{p.name}}</td>
+    <td>Rp {{p.price}}</td>
+    <td>{{p.stock}}</td>
+    <td>
+        <button onclick="addToCart({{p.id}}, '{{p.name}}', {{p.price}})">
+            Tambah
+        </button>
+    </td>
+</tr>
+{% endfor %}
+</table>
+
+<hr>
+
+<h3>Keranjang</h3>
+
+<ul id="cart"></ul>
+
+<h3>Total: Rp <span id="total">0</span></h3>
+
+<button onclick="checkout()">Bayar</button>
+
+</div>
+
+<script>
+let cart = []
+
+function addToCart(id, name, price) {
+
+    let item = cart.find(i => i.id === id)
+
+    if(item){
+        item.qty++
+    } else {
+        cart.push({
+            id,
+            name,
+            price,
+            qty:1
+        })
+    }
+
+    renderCart()
+}
+
+function renderCart(){
+
+    let el = document.getElementById("cart")
+    let total = 0
+
+    el.innerHTML = ""
+
+    cart.forEach(i => {
+
+        total += i.price * i.qty
+
+        el.innerHTML += `
+            <li>
+                ${i.name} 
+                x ${i.qty} 
+                = Rp ${i.price * i.qty}
+            </li>
+        `
+    })
+
+    document.getElementById("total").innerText = total
+}
+
+function checkout(){
+
+    fetch("/transaksi", {
+        method:"POST",
+        headers:{
+            "Content-Type":"application/json"
+        },
+        body: JSON.stringify({
+            items: cart
+        })
+    })
+    .then(r => r.json())
+    .then(d => {
+
+        if(d.status == "success"){
+            alert("Transaksi berhasil")
+            location.reload()
+        } else {
+            alert(d.status)
+        }
+
+    })
+}
+</script>
+
+{% endblock %}
